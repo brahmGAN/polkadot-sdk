@@ -30,9 +30,6 @@ pub mod pallet {
     };
     use frame_system::pallet_prelude::*;
     use sp_std::prelude::*;
-    use codec::{MaxEncodedLen};
-    use scale_info::TypeInfo;
-    use serde::{Serialize, Deserialize};
 
     #[pallet::pallet]
     pub struct Pallet<T>(_);
@@ -42,10 +39,6 @@ pub mod pallet {
     pub trait Config: frame_system::Config {
         /// The overarching event type
         type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
-        
-        /// The type used to store NFT values
-        type NFTValue: Member + Parameter + From<u32> + Into<u32> + MaxEncodedLen + Copy 
-            + Serialize + for<'a> Deserialize<'a> + TypeInfo;
         
         /// Minimum value for an NFT
         #[pallet::constant]
@@ -63,19 +56,19 @@ pub mod pallet {
         /// NFT was added. [account, value, timestamp]
         NFTAdded { 
             who: T::AccountId, 
-            val: T::NFTValue, 
+            val: u32, 
             when: BlockNumberFor<T>
         },
         /// NFT was updated. [account, old_value, new_value]
         NFTUpdated { 
             who: T::AccountId, 
-            old_val: T::NFTValue, 
-            new_val: T::NFTValue 
+            old_val: u32, 
+            new_val: u32
         },
         /// NFT was removed. [account, last_value]
         NFTRemoved { 
             who: T::AccountId, 
-            val: T::NFTValue 
+            val: u32
         },
     }
 
@@ -97,15 +90,16 @@ pub mod pallet {
     /// Storage map from account ID to NFT value
     #[pallet::storage]
     #[pallet::getter(fn nfts)]
-    pub type NFTs<T: Config> = StorageMap<_, Blake2_128Concat, T::AccountId, T::NFTValue>;
+    pub type NFTs<T: Config> = StorageMap<_, Blake2_128Concat, T::AccountId, u32>;
 
     /// Genesis configuration for the NFT Map pallet
     #[pallet::genesis_config]
     #[derive(frame_support::DefaultNoBound)]
     pub struct GenesisConfig<T: Config> {
-        pub nft_mappers: Vec<(T::AccountId, T::NFTValue)>,
+        pub nft_mappers: Vec<(T::AccountId, u32)>,
     }
 
+    
     #[pallet::genesis_build]
     impl<T: Config> BuildGenesisConfig for GenesisConfig<T> {
         fn build(&self) {
@@ -126,7 +120,7 @@ pub mod pallet {
         pub fn add_nft(
             origin: OriginFor<T>, 
             account: T::AccountId, 
-            val: T::NFTValue
+            val: u32
         ) -> DispatchResult {
             // Check that the extrinsic was signed and get the signer
             let _sender = ensure_root(origin)?;
@@ -161,7 +155,7 @@ pub mod pallet {
         pub fn update_nft(
             origin: OriginFor<T>, 
             account: T::AccountId, 
-            val: T::NFTValue
+            val: u32
         ) -> DispatchResult {
             let _sender = ensure_root(origin)?;
             

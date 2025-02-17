@@ -74,7 +74,6 @@ parameter_types! {
 
 impl pallet_nft_map::Config for Test {
     type RuntimeEvent = RuntimeEvent;
-    type NFTValue = u32;
     type MinValue = MinNFTValue;
     type MaxValue = MaxNFTValue;
 }

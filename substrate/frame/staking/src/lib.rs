@@ -930,7 +930,7 @@ impl<Balance: Default> EraPayout<Balance> for () {
 pub struct ConvertCurve<T>(core::marker::PhantomData<T>);
 impl<Balance, T> EraPayout<Balance> for ConvertCurve<T>
 where
-	Balance: AtLeast32BitUnsigned + Clone + Copy,
+	Balance: AtLeast32BitUnsigned + Clone + Copy + core::convert::From<u128>,
 	T: Get<&'static PiecewiseLinear<'static>>,
 {
 	fn era_payout(
