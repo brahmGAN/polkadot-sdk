@@ -380,6 +380,7 @@ members = [
 	"substrate/frame/mixnet",
 	"substrate/frame/multisig",
 	"substrate/frame/nft-fractionalization",
+	"substrate/frame/nft-map",
 	"substrate/frame/nfts",
 	"substrate/frame/nfts/runtime-api",
 	"substrate/frame/nis",
