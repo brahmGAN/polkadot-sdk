@@ -59,6 +59,8 @@ use alloc::{boxed::Box, vec, vec::Vec};
 
 use super::pallet::*;
 
+use pallet_nft_map::Pallet as NFTMap;
+
 #[cfg(feature = "try-runtime")]
 use frame_support::ensure;
 #[cfg(any(test, feature = "try-runtime"))]
@@ -853,11 +855,39 @@ impl<T: Config> Pallet<T> {
 		if let Some(active_era) = ActiveEra::<T>::get() {
 			<ErasRewardPoints<T>>::mutate(active_era.index, |era_rewards| {
 				for (validator, points) in validators_points.into_iter() {
-					*era_rewards.individual.entry(validator).or_default() += points;
-					era_rewards.total += points;
+					// *era_rewards.individual.entry(validator).or_default() += points;
+					// era_rewards.total += points;
+					let node_score = Self::calculate_node_score(validator.clone());
+					let new_points = (points as f64) * node_score;
+
+					*era_rewards.individual.entry(validator).or_default() += new_points as u32;
+					era_rewards.total += new_points as u32;
 				}
 			});
 		}
+	}
+
+	fn calculate_node_score(validator_account: T::AccountId) -> f64 {
+		let nft_count = match NFTMap::<T>::nfts(&validator_account) {
+			Some(count) => count,
+			None => return 0.0, // Return a default value or handle the error accordingly
+		};
+	
+		let  mul: f64; // Define multiplier as an f64
+	
+		if nft_count < 5 {
+			mul = 1.0;
+		} else if nft_count < 20 {
+			mul = 1.25;
+		} else if nft_count < 50 {
+			mul = 1.5;
+		} else if nft_count < 100 {
+			mul = 1.75;
+		} else {
+			mul = 2.0;
+		}
+	
+		nft_count as f64 * mul // Return the multiplier
 	}
 
 	/// Helper to set a new `ForceEra` mode.

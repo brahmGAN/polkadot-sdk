@@ -24,6 +24,7 @@ frame-support = { workspace = true }
 frame-system = { workspace = true }
 log = { workspace = true }
 pallet-authorship = { workspace = true }
+pallet-nft-map = {default-features = false, workspace = true}
 pallet-session = { features = [
 	"historical",
 ], workspace = true }
@@ -66,6 +67,7 @@ std = [
 	"pallet-balances/std",
 	"pallet-session/std",
 	"pallet-timestamp/std",
+	"pallet-nft-map/std",
 	"scale-info/std",
 	"serde/std",
 	"sp-application-crypto/std",

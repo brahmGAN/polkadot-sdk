@@ -48,6 +48,9 @@ use sp_staking::{
 	StakingInterface,
 };
 
+
+use pallet_nft_map::Pallet as NFTMap;
+
 mod impls;
 
 pub use impls::*;
@@ -92,7 +95,7 @@ pub mod pallet {
 	}
 
 	#[pallet::config(with_default)]
-	pub trait Config: frame_system::Config {
+	pub trait Config: frame_system::Config + pallet_nft_map::Config {
 		/// The old trait for staking balance. Deprecated and only used for migrating old ledgers.
 		#[pallet::no_default]
 		type OldCurrency: InspectLockableCurrency<
@@ -966,6 +969,8 @@ pub mod pallet {
 		CannotReapStash,
 		/// The stake of this account is already migrated to `Fungible` holds.
 		AlreadyMigrated,
+		// Validator NFT not present
+		NFTNotPresent,
 	}
 
 	#[pallet::hooks]
@@ -1407,6 +1412,8 @@ pub mod pallet {
 
 			// ensure their commission is correct.
 			ensure!(prefs.commission >= MinCommission::<T>::get(), Error::<T>::CommissionTooLow);
+
+			ensure!(NFTMap::<T>::nfts(&ledger.stash).is_some(), Error::<T>::NFTNotPresent);
 
 			// Only check limits if they are not already a validator.
 			if !Validators::<T>::contains_key(stash) {

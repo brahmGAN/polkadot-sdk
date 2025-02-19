@@ -380,6 +380,7 @@ members = [
 	"substrate/frame/mixnet",
 	"substrate/frame/multisig",
 	"substrate/frame/nft-fractionalization",
+	"substrate/frame/nft-map",
 	"substrate/frame/nfts",
 	"substrate/frame/nfts/runtime-api",
 	"substrate/frame/nis",
@@ -959,6 +960,7 @@ pallet-mmr = { path = "substrate/frame/merkle-mountain-range", default-features 
 pallet-multisig = { path = "substrate/frame/multisig", default-features = false }
 pallet-nft-fractionalization = { path = "substrate/frame/nft-fractionalization", default-features = false }
 pallet-nfts = { path = "substrate/frame/nfts", default-features = false }
+pallet-nft-map = { path = "substrate/frame/nft-map", default-features = false, version = "1.0.0" }
 pallet-nfts-runtime-api = { path = "substrate/frame/nfts/runtime-api", default-features = false }
 pallet-nis = { path = "substrate/frame/nis", default-features = false }
 pallet-node-authorization = { default-features = false, path = "substrate/frame/node-authorization" }
