@@ -1,8 +1,8 @@
 #![cfg(test)]
 
-use crate as pallet_subnet;
+use crate as pallet_queen;
 use frame_support::{
-    traits::{ConstU16, ConstU32, ConstU64},
+    traits::{ConstU16, ConstU32, ConstU64, Currency},
     weights::Weight,
 };
 use sp_core::H256;
@@ -10,21 +10,22 @@ use sp_runtime::{
     traits::{BlakeTwo256, IdentityLookup},
     BuildStorage,
 };
-
-use pallet_king;
+use frame_support::parameter_types;
 
 type Block = frame_system::mocking::MockBlock<Test>;
+type Balance = u64;
 
-// Construct test runtime with necessary pallets
+// Configure mock runtime
 frame_support::construct_runtime!(
     pub enum Test {
         System: frame_system,
         King: pallet_king,
         Subnet: pallet_subnet,
+        Queen: pallet_queen,
+        Balances: pallet_balances,
     }
 );
 
-// Configure the system pallet for our test environment
 impl frame_system::Config for Test {
     type BaseCallFilter = frame_support::traits::Everything;
     type BlockWeights = ();
@@ -42,7 +43,7 @@ impl frame_system::Config for Test {
     type BlockHashCount = ConstU64<250>;
     type Version = ();
     type PalletInfo = PalletInfo;
-    type AccountData = ();
+    type AccountData = pallet_balances::AccountData<Balance>;
     type OnNewAccount = ();
     type OnKilledAccount = ();
     type SystemWeightInfo = ();
@@ -58,50 +59,46 @@ impl frame_system::Config for Test {
     type PostTransactions = ();
 }
 
-pub struct MockWeightInfo;
-
-impl pallet_subnet::WeightInfo for MockWeightInfo {
-    fn create_subnet() -> Weight {
-        Weight::from_parts(10_000, 0)
-    }
-    fn add_provider() -> Weight {
-        Weight::from_parts(10_000, 0)
-    }
-    fn update_metrics() -> Weight {
-        Weight::from_parts(10_000, 0)
-    }
+parameter_types! {
+    pub const ExistentialDeposit: Balance = 1;
+    pub const MinStake: Balance = 100;
+    pub const MaxMonitoredSubnets: u32 = 10;
 }
 
-pub struct KingWeightInfo;
-
-impl pallet_king::WeightInfo for KingWeightInfo {
-    fn create_subnet() -> Weight {
-        Weight::from_parts(10_000, 0)
-    }
-    fn verify_provider() -> Weight {
-        Weight::from_parts(10_000, 0)
-    }
-}
-
-impl pallet_king::Config for Test {
+impl pallet_balances::Config for Test {
+    type Balance = Balance;
     type RuntimeEvent = RuntimeEvent;
-    type MaxTitleLength = ConstU32<100>;
-    type MaxSubnetsPerKing = ConstU32<10>;
-    type WeightInfo = KingWeightInfo;
+    type DustRemoval = ();
+    type ExistentialDeposit = ExistentialDeposit;
+    type AccountStore = System;
+    type WeightInfo = ();
+    type MaxLocks = ();
+    type MaxReserves = ();
+    type ReserveIdentifier = [u8; 8];
+    type FreezeIdentifier = ();
+    type MaxFreezes = ();
+    type RuntimeHoldReason = ();
+    type MaxHolds = ();
 }
 
-impl pallet_subnet::Config for Test {
+impl pallet_queen::Config for Test {
     type RuntimeEvent = RuntimeEvent;
-    type MaxProvidersPerSubnet = ConstU32<100>;
-    type WeightInfo = SubnetWeightInfo;
+    type Currency = Balances;
+    type MinStake = MinStake;
+    type MaxMonitoredSubnets = MaxMonitoredSubnets;
+    type WeightInfo = ();
 }
 
-
-
-// Build test environment
 pub fn new_test_ext() -> sp_io::TestExternalities {
-    frame_system::GenesisConfig::<Test>::default()
+    let mut t = frame_system::GenesisConfig::<Test>::default()
         .build_storage()
-        .unwrap()
-        .into()
+        .unwrap();
+
+    pallet_balances::GenesisConfig::<Test> {
+        balances: vec![(1, 1000), (2, 2000), (3, 3000)],
+    }
+    .assimilate_storage(&mut t)
+    .unwrap();
+
+    t.into()
 }

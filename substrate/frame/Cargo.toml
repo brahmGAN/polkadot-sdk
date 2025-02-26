@@ -62,6 +62,10 @@ frame-try-runtime = { optional = true, workspace = true }
 docify = { workspace = true }
 log = { workspace = true }
 
+#GPU King pallet
+pallet-king = { path = "king", default-features = false }
+
+
 [dev-dependencies]
 pallet-examples = { workspace = true }
 

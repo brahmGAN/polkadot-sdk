@@ -40,6 +40,9 @@ pub mod xcm_sender;
 mod integration_tests;
 #[cfg(test)]
 mod mock;
+#[cfg(test)]
+mod consensus_tests;  // For consensus test speed
+
 
 extern crate alloc;
 
